@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Börsenwerk - Professionelle Aktienanalyse</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <h1 class="logo">🏦 Börsenwerk</h1>
+                <p class="tagline">Professionelle Fundamental-Analyse</p>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container">
+        <!-- Suchbereich -->
+        <section class="search-section">
+            <div class="search-card">
+                <h2>Aktie analysieren</h2>
+                <div class="search-form">
+                    <input 
+                        type="text" 
+                        id="tickerInput" 
+                        class="ticker-input" 
+                        placeholder="z.B. AAPL, MSFT, TSLA..."
+                        autocomplete="off"
+                    >
+                    <button id="analyzeBtn" class="btn-primary">
+                        <span class="btn-text">Analysieren</span>
+                        <span class="btn-loader" style="display: none;">⏳</span>
+                    </button>
+                </div>
+                <p class="search-hint">Geben Sie ein Börsenkürzel ein und starten Sie die Analyse</p>
+            </div>
+        </section>
+
+        <!-- Fehler-Anzeige -->
+        <div id="errorDisplay" class="error-display" style="display: none;"></div>
+
+        <!-- Ergebnis-Bereich -->
+        <div id="resultsContainer" style="display: none;">
+            <!-- Header mit Firmendaten -->
+            <section class="result-header">
+                <div class="company-info">
+                    <h2 id="companyName"></h2>
+                    <p id="companyDetails"></p>
+                </div>
+                <div class="price-info">
+                    <div class="current-price" id="currentPrice"></div>
+                    <div class="currency" id="currency"></div>
+                </div>
+            </section>
+
+            <!-- Ampel-Signal -->
+            <section class="signal-section">
+                <div class="signal-card" id="signalCard">
+                    <div class="signal-icon" id="signalIcon"></div>
+                    <div class="signal-content">
+                        <h3 class="signal-title" id="signalTitle"></h3>
+                        <div class="signal-score">
+                            <span id="totalScore"></span>
+                            <span class="score-label">/100 Punkte</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Kategorien -->
+            <section class="categories-section">
+                <h3>Detaillierte Bewertung</h3>
+                <div class="categories-grid" id="categoriesGrid"></div>
+            </section>
+
+            <!-- Pro & Contra -->
+            <section class="pros-cons-section">
+                <div class="pros-cons-grid">
+                    <div class="pros-card">
+                        <h3>✅ Pro-Argumente</h3>
+                        <ul id="prosList"></ul>
+                    </div>
+                    <div class="contras-card">
+                        <h3>⚠️ Contra-Argumente</h3>
+                        <ul id="contrasList"></ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- News -->
+            <section class="news-section">
+                <h3>📰 Aktuelle Nachrichten</h3>
+                <div id="newsList"></div>
+            </section>
+
+            <!-- Datenqualität -->
+            <section class="data-quality-section">
+                <div class="data-quality-card">
+                    <h4>Datenqualität</h4>
+                    <div class="quality-bar">
+                        <div class="quality-fill" id="qualityFill"></div>
+                    </div>
+                    <p id="qualityText"></p>
+                </div>
+            </section>
+
+            <!-- Disclaimer -->
+            <section class="disclaimer">
+                <p><strong>⚠️ Disclaimer:</strong> Diese Analyse dient nur zu Informationszwecken und stellt keine Anlageberatung dar. Führen Sie immer Ihre eigene Recherche durch und konsultieren Sie bei Bedarf einen Finanzberater.</p>
+            </section>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p>Börsenwerk © 2025 | Powered by Claude AI</p>
+            <p class="footer-note">Analysedatum: <span id="analysisDate"></span></p>
+        </div>
+    </footer>
+
+    <script src="app.js"></script>
+</body>
+</html>
