@@ -15,7 +15,7 @@ Professionelle Fundamental- und technische Analyse nach UBS-Standards.
 1. Gehen Sie zu [Replit](https://replit.com)
 2. Klicken Sie auf "Create Repl"
 3. Wählen Sie "Import from GitHub"
-4. URL: `https://github.com/IHRUSERNAME/boersenwerk`
+4. URL: `https://github.com/hermanndill/boersenwerk`
 5. Klicken Sie auf "Import from GitHub"
 
 ### 2. API-Key einrichten
