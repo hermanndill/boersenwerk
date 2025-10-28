@@ -12,7 +12,9 @@ from analyzer import (
     calculate_category_scores,
     determine_signal,
     generate_pros_cons,
-    calculate_data_quality
+    calculate_data_quality,
+    get_simple_explanation,
+    generate_simple_summary
 )
 
 app = Flask(__name__)
@@ -149,6 +151,22 @@ WICHTIG:
         # Datenqualität
         data_quality = calculate_data_quality(fundamentals)
         
+        # Einfache Erklärungen hinzufügen
+        simple_explanations = {}
+        for cat in category_scores:
+            simple_explanations[cat] = get_simple_explanation(
+                cat, 
+                category_scores[cat], 
+                fundamentals
+            )
+        
+        # Einfache Zusammenfassung
+        simple_summary = generate_simple_summary(
+            category_scores, 
+            total_score, 
+            fundamentals
+        )
+        
         # Finale Response
         result = {
             'ticker': analysis_data['ticker'],
@@ -165,10 +183,12 @@ WICHTIG:
                 }
                 for cat, score in category_scores.items()
             },
+            'simple_explanations': simple_explanations,
+            'simple_summary': simple_summary,
             'fundamentals': fundamentals,
-            'pros': pros[:5],  # Top 5
-            'contras': contras[:5],  # Top 5
-            'news': analysis_data.get('news', [])[:5],  # Max 5 News
+            'pros': pros[:5],
+            'contras': contras[:5],
+            'news': analysis_data.get('news', [])[:5],
             'data_quality': data_quality,
             'analysis_date': Config.CURRENT_DATE
         }
