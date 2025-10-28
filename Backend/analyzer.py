@@ -315,5 +315,3 @@ def calculate_data_quality(fundamentals):
         'total': total,
         'text': f"{available} von {total} Kennzahlen verfügbar"
     }
-        'text': f"{available} von {total} Kennzahlen verfügbar"
-    }
