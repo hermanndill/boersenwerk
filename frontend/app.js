@@ -66,7 +66,6 @@ async function handleAnalyze() {
 
 // Ergebnisse anzeigen
 function displayResults(data) {
-    // Container anzeigen
     const container = document.getElementById('resultsContainer');
     container.style.display = 'block';
     
@@ -85,19 +84,31 @@ function displayResults(data) {
     document.getElementById('signalTitle').textContent = signal.text;
     document.getElementById('totalScore').textContent = data.total_score;
     
-    // Kategorien
+    // NEUE EINFACHE ZUSAMMENFASSUNG
+    if (data.simple_summary) {
+        const summaryDiv = document.getElementById('simpleSummary');
+        summaryDiv.innerHTML = data.simple_summary.summary.replace(/\n/g, '<br>');
+        
+        const hintsDiv = document.getElementById('simpleHints');
+        if (data.simple_summary.hints && data.simple_summary.hints.length > 0) {
+            hintsDiv.innerHTML = data.simple_summary.hints
+                .map(hint => `<div class="hint-item">💡 ${hint}</div>`)
+                .join('');
+        } else {
+            hintsDiv.innerHTML = '';
+        }
+    }
+    
+    // Kategorien MIT ERKLÄRUNGEN
     const categoriesGrid = document.getElementById('categoriesGrid');
     categoriesGrid.innerHTML = '';
     
-    const categoryNames = {
-        'profitability': 'Profitabilität',
-        'growth': 'Wachstum',
-        'stability': 'Stabilität',
-        'valuation': 'Bewertung',
-        'cashflow': 'Cashflow'
-    };
+    const categoryOrder = ['profitability', 'growth', 'stability', 'valuation', 'cashflow'];
     
-    for (const [key, value] of Object.entries(data.category_scores)) {
+    for (const key of categoryOrder) {
+        const value = data.category_scores[key];
+        const explanation = data.simple_explanations[key];
+        
         const card = document.createElement('div');
         card.className = 'category-card';
         
@@ -105,12 +116,20 @@ function displayResults(data) {
         if (value.score < 67) barColor = 'yellow';
         if (value.score < 34) barColor = 'red';
         
+        let ratingClass = 'sehr-gut';
+        if (value.score < 67) ratingClass = 'okay';
+        if (value.score < 34) ratingClass = 'schwach';
+        
         card.innerHTML = `
-            <div class="category-name">${categoryNames[key]}</div>
+            <div class="category-name">${explanation.emoji} ${explanation.title}</div>
             <div class="category-score">${value.score}</div>
             <div class="category-weight">Gewichtung: ${value.weight}%</div>
             <div class="category-bar">
                 <div class="category-fill ${barColor}" style="width: ${value.score}%"></div>
+            </div>
+            <div class="category-explanation">
+                <div class="category-rating ${ratingClass}">${explanation.rating}</div>
+                <p>${explanation.explanation}</p>
             </div>
         `;
         
@@ -181,10 +200,3 @@ function formatDate(dateString) {
     const options = { year: 'numeric', month: 'long', day: 'numeric' };
     return date.toLocaleDateString('de-DE', options);
 }
-```
-
----
-
-### Datei: `frontend/assets/.gitkeep`
-```
-# Platzhalter für Assets-Ordner
