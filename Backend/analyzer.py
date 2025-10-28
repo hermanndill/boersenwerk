@@ -1,6 +1,6 @@
 """
-Fundamental-Analyse Engine für Börsenwerk
-Berechnet Scores basierend auf 18 Kennzahlen in 5 Kategorien
+Fundamental-Analyse Engine für Börsenwerk - VEREINFACHTE VERSION
+Einfache Erklärungen statt Fachbegriffe
 """
 
 from config import Config
@@ -116,11 +116,125 @@ def calculate_category_scores(fundamentals):
     
     return scores
 
+def get_simple_explanation(category, score, fundamentals):
+    """Gibt einfache Erklärung für Laien zurück"""
+    
+    explanations = {
+        'profitability': {
+            'title': 'Verdient die Firma gut Geld?',
+            'high': 'Die Firma macht SEHR GUTEN Gewinn! Bei jedem verkauften Produkt bleibt viel Geld übrig.',
+            'medium': 'Die Firma verdient okay Geld, aber könnte effizienter arbeiten.',
+            'low': 'Die Firma verdient wenig oder macht sogar Verluste. Das ist riskant!'
+        },
+        'growth': {
+            'title': 'Wächst die Firma?',
+            'high': 'Die Firma wächst SCHNELL! Immer mehr Umsatz und Gewinn.',
+            'medium': 'Die Firma wächst langsam aber stetig. Normales Wachstum.',
+            'low': 'Die Firma wächst kaum oder schrumpft sogar. Reifes/altes Unternehmen.'
+        },
+        'stability': {
+            'title': 'Ist die Firma finanziell stabil?',
+            'high': 'Die Firma hat wenig Schulden und steht sehr stabil da. Kein Risiko!',
+            'medium': 'Die Firma hat etwas Schulden, aber nichts Gefährliches.',
+            'low': 'Die Firma hat VIELE Schulden! Könnte in Schwierigkeiten geraten.'
+        },
+        'valuation': {
+            'title': 'Ist der Aktienkurs fair?',
+            'high': 'Die Aktie ist GÜNSTIG! Der Preis ist niedriger als der wahre Wert.',
+            'medium': 'Der Preis ist okay - nicht teuer, nicht billig.',
+            'low': 'Die Aktie ist TEUER! Jeder zahlt gerade viel zu viel für diese Aktie.'
+        },
+        'cashflow': {
+            'title': 'Hat die Firma genug Geld?',
+            'high': 'Die Firma hat viel Bargeld und zahlt gute Dividenden!',
+            'medium': 'Die Firma hat genug Geld für den Betrieb.',
+            'low': 'Die Firma hat Geldprobleme. Wenig freies Bargeld verfügbar.'
+        }
+    }
+    
+    cat_data = explanations[category]
+    
+    if score >= 67:
+        level = 'high'
+        emoji = '🟢'
+        rating = 'SEHR GUT'
+    elif score >= 34:
+        level = 'medium'
+        emoji = '🟡'
+        rating = 'OKAY'
+    else:
+        level = 'low'
+        emoji = '🔴'
+        rating = 'SCHWACH'
+    
+    return {
+        'title': cat_data['title'],
+        'explanation': cat_data[level],
+        'emoji': emoji,
+        'rating': rating,
+        'score': round(score, 1)
+    }
+
+def generate_simple_summary(category_scores, total_score, fundamentals):
+    """Erstellt eine einfache Zusammenfassung für Laien"""
+    
+    # Bewerte die einzelnen Kategorien
+    prof = category_scores['profitability']
+    growth = category_scores['growth']
+    stab = category_scores['stability']
+    val = category_scores['valuation']
+    cf = category_scores['cashflow']
+    
+    # Bestimme Hauptproblem/Hauptvorteil
+    best_cat = max(category_scores, key=category_scores.get)
+    worst_cat = min(category_scores, key=category_scores.get)
+    
+    cat_names = {
+        'profitability': 'beim Geldverdienen',
+        'growth': 'beim Wachstum',
+        'stability': 'bei der Stabilität',
+        'valuation': 'beim Preis',
+        'cashflow': 'beim Cashflow'
+    }
+    
+    # Haupt-Zusammenfassung
+    if total_score >= 67:
+        summary = f"✅ **GUTE INVESTITION**\n\nDiese Firma ist stark {cat_names[best_cat]}."
+    elif total_score >= 50:
+        summary = f"🟡 **VORSICHTIG**\n\nDie Firma ist okay, aber hat Schwächen {cat_names[worst_cat]}."
+    elif total_score >= 34:
+        summary = f"⚠️ **NUR FÜR ERFAHRENE**\n\nDie Firma hat Probleme {cat_names[worst_cat]}."
+    else:
+        summary = f"❌ **BESSER NICHT**\n\nDie Firma hat große Schwächen {cat_names[worst_cat]}."
+    
+    # Spezielle Hinweise
+    hints = []
+    
+    if prof > 75 and val < 40:
+        hints.append("Die Firma ist exzellent, aber die Aktie ist zu teuer. Warten Sie auf einen besseren Preis!")
+    
+    if growth < 40:
+        hints.append("Die Firma wächst kaum noch. Gut für Stabilität, schlecht für schnelle Gewinne.")
+    
+    if stab < 40:
+        hints.append("ACHTUNG: Viele Schulden! Nur für risikobereite Anleger.")
+    
+    if val > 70:
+        hints.append("SCHNÄPPCHEN! Die Aktie ist günstig bewertet. Guter Einstiegszeitpunkt.")
+    
+    if cf > 70 and fundamentals.get('dividend_yield', 0) > 3:
+        hints.append("Gute Dividende! Perfekt für regelmäßige Einkünfte.")
+    
+    return {
+        'summary': summary,
+        'hints': hints[:3]  # Max 3 Hinweise
+    }
+
 def determine_signal(score):
     """Bestimmt Ampel-Signal"""
-    if score >= Config.THRESHOLDS['green_min']:
+    if score >= 67:
         return {'color': 'green', 'text': 'KAUFEN', 'emoji': '🟢'}
-    elif score >= Config.THRESHOLDS['yellow_min']:
+    elif score >= 34:
         return {'color': 'yellow', 'text': 'HALTEN', 'emoji': '🟡'}
     else:
         return {'color': 'red', 'text': 'VERKAUFEN', 'emoji': '🔴'}
@@ -132,58 +246,60 @@ def generate_pros_cons(fundamentals, category_scores):
     
     # Profitabilität
     if fundamentals.get('net_margin', 0) > 15:
-        pros.append(f"Starke Nettomarge von {fundamentals['net_margin']:.1f}%")
+        pros.append(f"Verdient sehr gut: {fundamentals['net_margin']:.1f}% Gewinnmarge")
     elif fundamentals.get('net_margin', 0) < 5:
-        contras.append(f"Schwache Nettomarge von {fundamentals['net_margin']:.1f}%")
+        contras.append(f"Verdient wenig: Nur {fundamentals['net_margin']:.1f}% Gewinnmarge")
     
     if fundamentals.get('roe', 0) > 20:
-        pros.append(f"Exzellente ROE von {fundamentals['roe']:.1f}%")
+        pros.append(f"Sehr profitabel: {fundamentals['roe']:.1f}% Eigenkapitalrendite")
     elif fundamentals.get('roe', 0) < 10:
-        contras.append(f"Niedrige ROE von {fundamentals['roe']:.1f}%")
+        contras.append(f"Schwach profitabel: Nur {fundamentals['roe']:.1f}% Eigenkapitalrendite")
     
     # Wachstum
     if fundamentals.get('revenue_growth_yoy', 0) > 15:
-        pros.append(f"Starkes Wachstum von {fundamentals['revenue_growth_yoy']:.1f}% YoY")
+        pros.append(f"Starkes Wachstum: +{fundamentals['revenue_growth_yoy']:.1f}% Umsatz pro Jahr")
     elif fundamentals.get('revenue_growth_yoy', 0) < 3:
-        contras.append(f"Schwaches Wachstum von {fundamentals['revenue_growth_yoy']:.1f}% YoY")
+        contras.append(f"Kaum Wachstum: Nur +{fundamentals['revenue_growth_yoy']:.1f}% Umsatz pro Jahr")
     
     # Verschuldung
     if fundamentals.get('debt_to_equity', 999) < 1:
-        pros.append(f"Solide Bilanz (D/E: {fundamentals['debt_to_equity']:.2f})")
+        pros.append(f"Wenig Schulden: Verhältnis von {fundamentals['debt_to_equity']:.2f}")
     elif fundamentals.get('debt_to_equity', 0) > 2:
-        contras.append(f"Hohe Verschuldung (D/E: {fundamentals['debt_to_equity']:.2f})")
+        contras.append(f"Viele Schulden: Verhältnis von {fundamentals['debt_to_equity']:.2f}")
     
     # Bewertung
     if fundamentals.get('pe_ratio', 999) < 15:
-        pros.append(f"Günstige Bewertung (KGV: {fundamentals['pe_ratio']:.1f})")
+        pros.append(f"Günstig bewertet: KGV von {fundamentals['pe_ratio']:.1f}")
     elif fundamentals.get('pe_ratio', 0) > 30:
-        contras.append(f"Teure Bewertung (KGV: {fundamentals['pe_ratio']:.1f})")
+        contras.append(f"Teuer bewertet: KGV von {fundamentals['pe_ratio']:.1f}")
     
     if fundamentals.get('peg_ratio', 999) < 1:
-        pros.append(f"Attraktive PEG-Ratio von {fundamentals['peg_ratio']:.2f}")
+        pros.append(f"Sehr günstig fürs Wachstum: PEG {fundamentals['peg_ratio']:.2f}")
     
     # Cashflow
     if fundamentals.get('fcf', 0) > 0:
-        pros.append(f"Positiver FCF: {fundamentals['fcf']:,.0f} Mio.")
+        pros.append(f"Hat freies Geld: {fundamentals['fcf']:,.0f} Millionen")
     else:
-        contras.append("Negativer Free Cashflow")
+        contras.append("Kein freies Geld übrig")
     
     if fundamentals.get('dividend_yield', 0) > 3:
-        pros.append(f"Hohe Dividende: {fundamentals['dividend_yield']:.2f}%")
+        pros.append(f"Hohe Dividende: {fundamentals['dividend_yield']:.2f}% pro Jahr")
+    elif fundamentals.get('dividend_yield', 0) < 1 and fundamentals.get('dividend_yield', 0) > 0:
+        contras.append(f"Niedrige Dividende: Nur {fundamentals['dividend_yield']:.2f}%")
     
     # Kategorien
     for cat, score in category_scores.items():
         cat_names = {
-            'profitability': 'Profitabilität',
+            'profitability': 'Gewinn',
             'growth': 'Wachstum',
             'stability': 'Stabilität',
             'valuation': 'Bewertung',
             'cashflow': 'Cashflow'
         }
         if score > 75:
-            pros.append(f"Starke {cat_names[cat]} ({score:.0f}/100)")
+            pros.append(f"Starker {cat_names[cat]} ({score:.0f}/100)")
         elif score < 40:
-            contras.append(f"Schwache {cat_names[cat]} ({score:.0f}/100)")
+            contras.append(f"Schwacher {cat_names[cat]} ({score:.0f}/100)")
     
     return pros, contras
 
@@ -197,5 +313,7 @@ def calculate_data_quality(fundamentals):
         'score': round(quality_pct, 0),
         'available': available,
         'total': total,
+        'text': f"{available} von {total} Kennzahlen verfügbar"
+    }
         'text': f"{available} von {total} Kennzahlen verfügbar"
     }
